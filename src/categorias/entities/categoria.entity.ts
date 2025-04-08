@@ -1,51 +1,31 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+// src/categorias/entities/categoria.entity.ts
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, OneToMany } from 'typeorm';
+import { ApiProperty } from '@nestjs/swagger';
+import { Producto } from '../../productos/entities/producto.entity';
 
 @Entity('categorias')
 export class Categoria {
-    @ApiProperty({
-        example: '1',
-        description: 'ID de la categoria es unica y autoincrementable',
-    })
-    @PrimaryGeneratedColumn()
-    id: number;
+  @ApiProperty({ example: 1, description: 'ID único de la categoría' })
+  @PrimaryGeneratedColumn()
+  id: number;
 
-    @ApiProperty({
-        example: 'Tecnologia',
-        description: 'Nombre de la categoria',
-        required: true
-    })
-    @Column({length: 100, unique: true})
-    nombre: string;
+  @ApiProperty({ example: 'Electrónicos', description: 'Nombre de la categoría' })
+  @Column({ length: 100, unique: true })
+  nombre: string;
 
-    @ApiProperty({
-        example: 'Categoria de tecnologia',
-        description: 'Descripcion de la categoria',
-        required: false
-    })
-    @Column({
-        type: 'text',
-        nullable: true,
-    })
-    descripcion: string;
+  @ApiProperty({ example: 'Dispositivos electrónicos de consumo', description: 'Descripción de la categoría' })
+  @Column({ type: 'text', nullable: true })
+  descripcion: string;
 
-    @ApiProperty({
-        example: true,
-        description: 'Estado de la categoria (activa o inactiva)',
-    })
-    @Column({default: true})
-    activa: boolean;
+  @ApiProperty({ example: true, description: 'Estado de la categoría (activa/inactiva)' })
+  @Column({ default: true })
+  activa: boolean;
 
-    @ApiProperty({
-        description: 'Fecha de creacion de la categoria',
-        example: '2023-10-01T00:00:00.000Z',
-    })
-    @Column({
-        name: 'creado_en', 
-    })
-    creadoEn: Date;
+  @ApiProperty({ description: 'Fecha de creación del registro' })
+  @CreateDateColumn({ name: 'creado_en' })
+  creadoEn: Date;
 
-    @ApiProperty({description: 'Productos de la categoria'})
-    @OneToMany('Producto', 'categoria')
-    productos: any[];
+  @ApiProperty({ type: () => [Producto], description: 'Productos en esta categoría' })
+  @OneToMany(() => Producto, producto => producto.categoria)
+  productos: Producto[];
 }
