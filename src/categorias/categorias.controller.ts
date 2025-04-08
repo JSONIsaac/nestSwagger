@@ -3,8 +3,6 @@ import { CategoriasService } from './categorias.service';
 import { ApiBody, ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
 import { Categoria } from './entities/categoria.entity';
 import { CreateCategoriaDto } from './dto/create-categoria.dto';
-import { timestamp } from 'rxjs';
-import path from 'path';
 import { UpdateCategoriaDto } from './dto/update-categoria.dto';
 
 @Controller('categorias')
