@@ -1,6 +1,6 @@
-import { IsNotEmpty } from "@nestjs/class-validator";
+import { IsNotEmpty, IsOptional } from "@nestjs/class-validator";
 import { ApiProperty } from "@nestjs/swagger";
-import { IsString, Length } from "class-validator";
+import { IsBoolean, IsString, Length } from "class-validator";
 
 export class CreateCategoriaDto {
 
@@ -20,4 +20,26 @@ export class CreateCategoriaDto {
     })
     nombre: string;
 
+    @ApiProperty({
+        example: 'Categoria de tecnologia',
+        description: 'Descripcion de la categoria',
+        required: false
+    })
+    @IsOptional()
+    @IsString({
+        message: 'La descripcion debe ser una cadena de texto'
+    })
+    descripcion?: string;
+
+    @ApiProperty({
+        example: true,
+        description: 'Estado de la categoria (activa/inactiva)',
+        required: false,
+        default: true
+    })
+    @IsOptional()
+    @IsBoolean({
+        message: 'El estado de la categoria debe ser un booleano'
+    })
+    activa?: boolean;
 }
