@@ -1,10 +1,11 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseIntPipe, Put, HttpCode, HttpStatus } from '@nestjs/common';
 import { ProductosService } from './productos.service';
 import { CreateProductoDto } from './dto/create-producto.dto';
 import { UpdateProductoDto } from './dto/update-producto.dto';
-import { ApiBody, ApiOperation, ApiQuery, ApiResponse, ApiResponseProperty } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiResponseProperty } from '@nestjs/swagger';
 import { Producto } from './entities/producto.entity';
 import path from 'path';
+import { timestamp } from 'rxjs';
 
 @Controller('productos')
 export class ProductosController {
@@ -51,22 +52,72 @@ export class ProductosController {
       }
     }
   })
-  findAll() {
+  async findAll(@Query('categoriaId') categoriaId?: number) {
+    if (categoriaId){
+      const productos = await this.productosService.findByCategoria(+categoriaId);
+      return {
+        data: productos,
+        statusCode: 200,
+        timestamp: new Date().toISOString(),
+        path: `/producto?categoriaId=${categoriaId}`,
+      }
+    }
     return this.productosService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.productosService.findOne(+id);
+  @ApiOperation({ summary: 'Obtener un producto por id' })
+  @ApiParam({ name: 'id', description: 'ID del producto'})
+  @ApiResponse({
+    status: 200,
+    description: 'Producto encontrado',
+    type: Producto,
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'No existe un producto con ese id',
+  })
+  findOne(@Param('id', ParseIntPipe) id: number): Promise<Producto> {
+    return this.productosService.findOne(id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateProductoDto: UpdateProductoDto) {
-    return this.productosService.update(+id, updateProductoDto);
+  @Put(':id')
+  @ApiOperation({ summary: 'Actualizar un producto por id' })
+  @ApiParam({ name: 'id', description: 'ID del producto'})
+  @ApiBody({ type: UpdateProductoDto })
+  @ApiResponse({
+    status: 200,
+    description: 'Producto actualizado exitosamente',
+    type: Producto,
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'No existe un producto con ese id',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Datos invalidos',
+  })
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateProductoDto : UpdateProductoDto,
+  ): Promise<Producto> {
+    return this.productosService.update(id, updateProductoDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.productosService.remove(+id);
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Eliminar un producto por id' })
+  @ApiParam({ name: 'id', description: 'ID del producto'})
+  @ApiResponse({
+    status: 204,
+    description: 'Producto eliminado exitosamente',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'No existe un producto con ese id',
+  })
+  remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
+    return this.productosService.remove(id);
   }
 }
